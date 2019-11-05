@@ -7,7 +7,6 @@ const int sensorGas = A0;
 // definição de ativação do sensor de gás
 const int ativacao = 1023 / 4;
 
-
 // função para execultar a piscada do led
 void piscaLed(unsigned int time, int led)
 {
@@ -35,23 +34,17 @@ void loop()
     {
         Serial.println("ligado");
 
-        unsigned int time = 500; // meio segundo
+        // determina o tempo de variação do led ligado/desligado e define o tempo do loop
+        int time = 500; // meio segundo
         int seg = 4;
 
         // faz o led piscar pela variável segundos
-        for (int i = 0; i < seg; i++)
-        {
-            piscaLed(time,ledAzul);
-        }
+        for (int i = 0; i < seg; i++) piscaLed(time, ledAzul);
     }
-    else
-    {
-        Serial.println("desligado");
-    }
-    
 
     Serial.println(analogRead(A0));
 
+    // enquanto o sensor tiver passado do limite de ativacao ficará no loop
     while (analogRead(A0) >= ativacao)
     {
         Serial.println(analogRead(A0));
@@ -60,10 +53,6 @@ void loop()
         unsigned int time = 1024 - analogRead(A0);
 
         // faz o led piscar
-        piscaLed(time,ledVermelho);
+        piscaLed(time, ledVermelho);
     }
-
-    // digitalWrite(led, LOW); // mantém o led desligado
-
-    // delay(1000);
 }
