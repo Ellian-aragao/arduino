@@ -25,47 +25,94 @@ void piscaLed(unsigned int time, int led)
     delay(time);
 }
 
-void display(int x)
+// função do display de 7 segmentos
+void display(int x, int time)
 {
+    // desliga todos os leds para setar o próximo valor
+    digitalWrite(A, LOW);
+    digitalWrite(B, LOW);
+    digitalWrite(C, LOW);
+    digitalWrite(D, LOW);
+    digitalWrite(E, LOW);
+    digitalWrite(F, LOW);
+    digitalWrite(G, LOW);
+
     switch (x)
     {
         case 0:
-            pinWrite(A, HIGH);
-            pinWrite(B, HIGH);
-            pinWrite(C, HIGH);
-            pinWrite(D, HIGH);
-            pinWrite(E, HIGH);
-            pinWrite(F, HIGH);
+            digitalWrite(A, HIGH);
+            digitalWrite(B, HIGH);
+            digitalWrite(C, HIGH);
+            digitalWrite(D, HIGH);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, HIGH);
             break;
         case 1:
-
-
+            digitalWrite(B, HIGH);
+            digitalWrite(C, HIGH);
             break;
         case 2:
-
+            digitalWrite(A, HIGH);
+            digitalWrite(B, HIGH);
+            digitalWrite(D, HIGH);
+            digitalWrite(E, HIGH);
+            digitalWrite(G, HIGH);
             break;
         case 3:
-
+            digitalWrite(A, HIGH);
+            digitalWrite(B, HIGH);
+            digitalWrite(C, HIGH);
+            digitalWrite(D, HIGH);
+            digitalWrite(G, HIGH);
             break;
         case 4:
-            
+            digitalWrite(B, HIGH);
+            digitalWrite(C, HIGH);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, HIGH);
             break;
         case 5:
-            
+            digitalWrite(A, HIGH);
+            digitalWrite(C, HIGH);
+            digitalWrite(D, HIGH);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, HIGH);
             break;
         case 6:
-            
+            digitalWrite(A, HIGH);
+            digitalWrite(C, HIGH);
+            digitalWrite(D, HIGH);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, HIGH);
             break;
         case 7:
-            
+            digitalWrite(A, HIGH);
+            digitalWrite(B, HIGH);
+            digitalWrite(C, HIGH);
+            digitalWrite(F, HIGH);
             break;
         case 8:
-            
+            digitalWrite(A, HIGH);
+            digitalWrite(B, HIGH);
+            digitalWrite(C, HIGH);
+            digitalWrite(D, HIGH);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, HIGH);
             break;
         case 9:
-            
+            digitalWrite(A, HIGH);
+            digitalWrite(B, HIGH);
+            digitalWrite(C, HIGH);
+            digitalWrite(D, HIGH);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, HIGH);
             break;
+        default:
+            digitalWrite(3, HIGH);
     }
+    delay(time);
 }
 
 void setup()
@@ -75,8 +122,13 @@ void setup()
 
     //configurando entradas e saídas do Arduino
     pinMode(sensorGas, INPUT);
-    pinMode(ledVermelho, OUTPUT);
     pinMode(interruptor, INPUT);
+
+    // configurando saídas dos leds
+    pinMode(ledVermelho, OUTPUT);
+    pinMode(ledAzul, OUTPUT);
+
+    // configurando saídas do display de 7 segmentos 
     pinMode(A, OUTPUT);
     pinMode(B, OUTPUT);
     pinMode(C, OUTPUT);
@@ -87,7 +139,26 @@ void setup()
 
 void loop()
 {
-    display(0);
+    int analog = analogRead(A0);
+    // display(analog * 10 / 1023, 0);
+    Serial.println(analog);
+
+    // enquanto o sensor tiver passado do limite de ativacao ficará no loop
+    while (analog >= ativacao)
+    {
+        // determina a velocidade que o led irá piscar de acordo com a medição do sensor de gás
+        unsigned int time = 1023 - analog;
+
+        // faz o led piscar e atualiza o display
+        // display(analog * 100 / 1023, 0);
+        piscaLed(time, ledVermelho);
+
+        // refaz a leitura do sensor de gás
+        analog = analogRead(A0);
+        Serial.println(analog);
+    }
+
+
     // verifica se a leitura do interruptor é verdadeira
     if (digitalRead(interruptor))
     {
@@ -99,19 +170,5 @@ void loop()
 
         // faz o led piscar pela variável segundos
         for (int i = 0; i < seg; i++) piscaLed(time, ledAzul);
-    }
-    int analog = analogRead(A0)
-    //Serial.println(analog);
-
-    // enquanto o sensor tiver passado do limite de ativacao ficará no loop
-    while (analogRead(A0) >= ativacao)
-    {
-        Serial.println(analogRead(A0));
-
-        // determina a velocidade que o led irá piscar de acordo com a medição do sensor de gás
-        unsigned int time = 1024 - analogRead(A0);
-
-        // faz o led piscar
-        piscaLed(time, ledVermelho);
     }
 }
