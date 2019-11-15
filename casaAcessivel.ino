@@ -1,10 +1,10 @@
-// iniciação das entradas dos sensores
-const int interruptor = 0;
+// declarando as variaveis das entradas dos sensores
 const int sensorGas = A0;
+const int interruptor = 2;
 
-// iniciação das saídas
-const int ledVermelho = 1;
-const int ledAzul = 2;
+// declarando as variaveis das saídas
+const int ledVermelho = 3;
+const int ledAzul = 4;
 const int A =  7;
 const int B =  8;
 const int C =  9;
@@ -14,7 +14,7 @@ const int F = 12;
 const int G = 13;
 
 // definição de ativação do sensor de gás
-const int ativacao = 1023 / 4;
+const int ativacao = 1024 / 4;
 
 // função para execultar a piscada do led
 void piscaLed(unsigned int time, int led)
@@ -25,10 +25,9 @@ void piscaLed(unsigned int time, int led)
     delay(time);
 }
 
-// função do display de 7 segmentos
-void display(int x, int time)
+// desliga todos os leds
+void desligaDisplay(void)
 {
-    // desliga todos os leds para setar o próximo valor
     digitalWrite(A, LOW);
     digitalWrite(B, LOW);
     digitalWrite(C, LOW);
@@ -36,81 +35,143 @@ void display(int x, int time)
     digitalWrite(E, LOW);
     digitalWrite(F, LOW);
     digitalWrite(G, LOW);
+}
+
+// exibe no display o "0"
+void print0(void)
+{
+    digitalWrite(A, HIGH);
+    digitalWrite(B, HIGH);
+    digitalWrite(C, HIGH);
+    digitalWrite(D, HIGH);
+    digitalWrite(E, HIGH);
+    digitalWrite(F, HIGH);
+}
+// exibe no display o "1"
+void print1(void)
+{
+    digitalWrite(B, HIGH);
+    digitalWrite(C, HIGH);
+}
+// exibe no display o "2"
+void print2(void)
+{
+    digitalWrite(A, HIGH);
+    digitalWrite(B, HIGH);
+    digitalWrite(D, HIGH);
+    digitalWrite(E, HIGH);
+    digitalWrite(G, HIGH);
+}
+// exibe no display o "3"
+void print3(void)
+{
+    digitalWrite(A, HIGH);
+    digitalWrite(B, HIGH);
+    digitalWrite(C, HIGH);
+    digitalWrite(D, HIGH);
+    digitalWrite(G, HIGH);
+}
+// exibe no display o "4"
+void print4(void)
+{
+    digitalWrite(B, HIGH);
+    digitalWrite(C, HIGH);
+    digitalWrite(F, HIGH);
+    digitalWrite(G, HIGH);
+}
+// exibe no display o "5"
+void print5(void)
+{
+    digitalWrite(A, HIGH);
+    digitalWrite(C, HIGH);
+    digitalWrite(D, HIGH);
+    digitalWrite(F, HIGH);
+    digitalWrite(G, HIGH);
+}
+// exibe no display o "6"
+void print6(void)
+{
+    digitalWrite(A, HIGH);
+    digitalWrite(C, HIGH);
+    digitalWrite(D, HIGH);
+    digitalWrite(E, HIGH);
+    digitalWrite(F, HIGH);
+    digitalWrite(G, HIGH);
+}
+// exibe no display o "7"
+void print7(void)
+{
+    digitalWrite(A, HIGH);
+    digitalWrite(B, HIGH);
+    digitalWrite(C, HIGH);
+    digitalWrite(F, HIGH);
+}
+// exibe no display o "8"
+void print8(void)
+{
+    digitalWrite(A, HIGH);
+    digitalWrite(B, HIGH);
+    digitalWrite(C, HIGH);
+    digitalWrite(D, HIGH);
+    digitalWrite(E, HIGH);
+    digitalWrite(F, HIGH);
+    digitalWrite(G, HIGH);
+}
+// exibe no display o "9"
+void print9(void)
+{
+    digitalWrite(A, HIGH);
+    digitalWrite(B, HIGH);
+    digitalWrite(C, HIGH);
+    digitalWrite(D, HIGH);
+    digitalWrite(F, HIGH);
+    digitalWrite(G, HIGH);
+}
+
+// função do display de 7 segmentos
+void display(int analog, int time)
+{
+    // cálculo para determinar qual valor a ser exibido
+    int x = analog * 0.009765625;
+
+    // setar os leds para o próximo valor
+    desligaDisplay();
+    digitalWrite(0, LOW);
 
     switch (x)
     {
         case 0:
-            digitalWrite(A, HIGH);
-            digitalWrite(B, HIGH);
-            digitalWrite(C, HIGH);
-            digitalWrite(D, HIGH);
-            digitalWrite(E, HIGH);
-            digitalWrite(F, HIGH);
+            print0();
             break;
         case 1:
-            digitalWrite(B, HIGH);
-            digitalWrite(C, HIGH);
+            print1();
             break;
         case 2:
-            digitalWrite(A, HIGH);
-            digitalWrite(B, HIGH);
-            digitalWrite(D, HIGH);
-            digitalWrite(E, HIGH);
-            digitalWrite(G, HIGH);
+            print2();
             break;
         case 3:
-            digitalWrite(A, HIGH);
-            digitalWrite(B, HIGH);
-            digitalWrite(C, HIGH);
-            digitalWrite(D, HIGH);
-            digitalWrite(G, HIGH);
+            print3();
             break;
         case 4:
-            digitalWrite(B, HIGH);
-            digitalWrite(C, HIGH);
-            digitalWrite(F, HIGH);
-            digitalWrite(G, HIGH);
+            print4();
             break;
         case 5:
-            digitalWrite(A, HIGH);
-            digitalWrite(C, HIGH);
-            digitalWrite(D, HIGH);
-            digitalWrite(F, HIGH);
-            digitalWrite(G, HIGH);
+            print5();
             break;
         case 6:
-            digitalWrite(A, HIGH);
-            digitalWrite(C, HIGH);
-            digitalWrite(D, HIGH);
-            digitalWrite(E, HIGH);
-            digitalWrite(F, HIGH);
-            digitalWrite(G, HIGH);
+            print6();
             break;
         case 7:
-            digitalWrite(A, HIGH);
-            digitalWrite(B, HIGH);
-            digitalWrite(C, HIGH);
-            digitalWrite(F, HIGH);
+            print7();
             break;
         case 8:
-            digitalWrite(A, HIGH);
-            digitalWrite(B, HIGH);
-            digitalWrite(C, HIGH);
-            digitalWrite(D, HIGH);
-            digitalWrite(E, HIGH);
-            digitalWrite(F, HIGH);
-            digitalWrite(G, HIGH);
+            print8();
             break;
         case 9:
-            digitalWrite(A, HIGH);
-            digitalWrite(B, HIGH);
-            digitalWrite(C, HIGH);
-            digitalWrite(D, HIGH);
-            digitalWrite(F, HIGH);
-            digitalWrite(G, HIGH);
+            print9();
             break;
         default:
-            digitalWrite(3, HIGH);
+            digitalWrite(0, HIGH);
     }
     delay(time);
 }
@@ -140,17 +201,17 @@ void setup()
 void loop()
 {
     int analog = analogRead(A0);
-    // display(analog * 10 / 1023, 0);
+    display(analog, 0);
     Serial.println(analog);
 
     // enquanto o sensor tiver passado do limite de ativacao ficará no loop
     while (analog >= ativacao)
     {
         // determina a velocidade que o led irá piscar de acordo com a medição do sensor de gás
-        unsigned int time = 1023 - analog;
+        unsigned int time = 1024 - analog;
 
         // faz o led piscar e atualiza o display
-        // display(analog * 100 / 1023, 0);
+        display(analog, 0);
         piscaLed(time, ledVermelho);
 
         // refaz a leitura do sensor de gás
