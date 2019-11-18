@@ -132,7 +132,7 @@ void print9(void)
 void display(int analog, int time)
 {
     // cálculo para determinar qual valor a ser exibido
-    int x = analog * 0.009765625;
+    int x = analog * 0.009765625; // a constante é "10 / 1024"
 
     // setar os leds para o próximo valor
     desligaDisplay();
@@ -181,7 +181,7 @@ void setup()
     // configura a velocidade de leitura
     Serial.begin(9600);
 
-    //configurando entradas e saídas do Arduino
+    //configurando entradas do Arduino
     pinMode(sensorGas, INPUT);
     pinMode(interruptor, INPUT);
 
