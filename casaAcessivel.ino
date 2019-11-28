@@ -1,22 +1,24 @@
 /*declaração das constantes do programa para melhor manutenção do programa*/
 
 // declarando as variaveis das entradas dos sensores
-const int sensorGas = A0;
-const int interruptor = 2;
+#define sensorGas A0
+#define interruptor 2
 
 // declarando as variaveis das saídas
-const int ledVermelho = 3;
-const int ledAzul = 4;
-const int A =  7;
-const int B =  8;
-const int C =  9;
-const int D = 10;
-const int E = 11;
-const int F = 12;
-const int G = 13;
+#define saidaGas 3
+#define saidaInterruptor 4
+
+// declarando os leds do display de 7 segmentos
+#define A  5
+#define B  6
+#define C  7
+#define D  8
+#define E  9
+#define F 10
+#define G 11
 
 // definição de ativação do sensor de gás
-const int ativacao = 1024 / 2;
+const int ativacao = 1024 / 3;
 
 
 /*funções para auxiliar na simplificação do projeto*/
@@ -136,6 +138,8 @@ void display(int analog)
     // cálculo para determinar qual valor a ser exibido
     int x = analog * 0.009765625; // a constante é "10 / 1024"
 
+    Serial.print(x);
+    Serial.print("\t"); 
 
     // setar os leds para o próximo valor
     desligaDisplay();
@@ -189,8 +193,8 @@ void setup()
     pinMode(interruptor, INPUT);
 
     // configurando saídas dos leds
-    pinMode(ledVermelho, OUTPUT);
-    pinMode(ledAzul, OUTPUT);
+    pinMode(saidaGas, OUTPUT);
+    pinMode(saidaInterruptor, OUTPUT);
 
     // configurando saídas do display de 7 segmentos 
     pinMode(A, OUTPUT);
@@ -212,12 +216,12 @@ void loop()
     while (analog >= ativacao)
     {
         // determina a velocidade que o led irá piscar de acordo com a medição do sensor de gás
-        unsigned int time = 1024 - analog;
+        int time = 1024 - analog;
 
 
         // faz o led piscar e atualiza o display
         display(analog);
-        piscaLed(time, ledVermelho);
+        piscaLed(time, saidaGas);
 
 
         // refaz a leitura do sensor de gás e exibe o resultado
@@ -238,6 +242,6 @@ void loop()
 
 
         // faz o led piscar pela variável segundos
-        for (int i = 0; i < seg; i++) piscaLed(time, ledAzul);
+        for (int i = 0; i < seg; i++) piscaLed(time, saidaInterruptor);
     }
 }
