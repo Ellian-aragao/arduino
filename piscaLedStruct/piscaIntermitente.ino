@@ -1,40 +1,32 @@
-struct LED
-{
-    int modulo;
-    int led;
-    bool estado;
+#include "led.h"
+class ledPiscante : public Led {
+    private:
+        unsigned int modulo;
+    public:
+        ledPiscante(unsigned int portaDeSaida, unsigned int modulo) : Led(portaDeSaida) {
+            this->modulo = modulo;
+        }
+
+        void testaModuloLed(unsigned int tempo) {
+            if (tempo % this->modulo == 0 && tempo != 0) {
+                this->alternaEstadoLed();
+            }
+        }
+
+        ~ledPiscante();
 };
 
-struct LED amarelo = {5, 2, false};
-struct LED vermelho = {7, 3, false};
-struct LED verde = {11, 4, false};
+ledPiscante amarelo = ledPiscante(2,5);
+ledPiscante vermelho = ledPiscante(3,5);
+ledPiscante verde = ledPiscante(4,11);
 
-struct LED *vetores[] = {&vermelho, &verde, &amarelo};
+ledPiscante vetorDeLeds[] = {amarelo,vermelho, verde};
 
 void setup() {
-    pinMode(vermelho.led, OUTPUT);
-    pinMode(verde.led, OUTPUT);
-    pinMode(amarelo.led, OUTPUT);
+    for (int i = 0; i < 3; i++) {
+        vetorDeLeds[i].declaraLed();
+    }
     Serial.begin(9600);
-}
-
-// alterna o estado do led
-void piscaLed(struct LED *led) {
-    if (!led->estado) {
-        digitalWrite(led->led, HIGH);
-        led->estado = true;
-    }
-    else {
-        digitalWrite(led->led, LOW);
-        led->estado = false;
-    }
-}
-
-// verifica se deve piscar o led
-void testaLed(struct LED *led, int tempo) {
-    if (tempo % led->modulo == 0 && tempo != 0) {
-        piscaLed(led);
-    }
 }
 
 void loop() {
@@ -42,9 +34,9 @@ void loop() {
         Serial.println(i);
 
         for(int j = 0; j < 3; j++) {
-            testaLed(vetores[j], i);
+            vetorDeLeds[i].testaModuloLed(i);
         }
-
+        
         delay(1000);
     }
 }
