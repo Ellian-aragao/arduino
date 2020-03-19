@@ -116,7 +116,10 @@ void SEMAFOROS::testaOsSemaforos(int segundos){
 }
 SEMAFOROS semaforo{{{&verde0 , &amarelo0, &vermelho0},{&verde1, &amarelo1, &vermelho1}}};
 
-void mostraVesesQueLedVermelhoPiscou() {
+void mostraVesesQueLedVermelhoPiscou(unsigned long segundos) {
+    Serial.print("---------- ");
+    Serial.print(segundos);
+    Serial.println(" -----------");
     Serial.print("/1 semaforo->vermelho: ");
     Serial.println(vermelho0.getPiscadas());
     Serial.print("\\2 semaforo->vermelho: ");
@@ -131,7 +134,7 @@ void setup() {
 void loop() {
     for (unsigned long segundos = 0; 1; segundos++) {
         semaforo.testaOsSemaforos(segundos % 6);
-        mostraVesesQueLedVermelhoPiscou();
+        mostraVesesQueLedVermelhoPiscou(segundos);
         delay(1000);
     }
 }
