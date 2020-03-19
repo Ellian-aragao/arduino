@@ -26,17 +26,13 @@ void setup() {
     for (int i = 0; i < 3; i++) {
         vetorDeLeds[i].declaraLed();
     }
-    Serial.begin(9600);
 }
 
 void loop() {
     for (int i = 0; 1; i++) {
-        Serial.println(i);
-
         for(int j = 0; j < 3; j++) {
             vetorDeLeds[i].testaModuloLed(i);
         }
-        
         delay(1000);
     }
 }
