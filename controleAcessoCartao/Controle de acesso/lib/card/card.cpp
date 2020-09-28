@@ -13,7 +13,7 @@ void granted(uint16_t setDelay)
   delay(1000);                    // Hold green LED on for a second
 }
 
-///////////////////////////////////////// Access Denied  ///////////////////////////////////
+/////////////////////////////////////////  Access Denied  ///////////////////////////////////
 void denied()
 {
   digitalWrite(greenLed, LED_OFF); // Make sure green LED is off
@@ -22,7 +22,7 @@ void denied()
   delay(1000);
 }
 
-///////////////////////////////////////// Get PICC's UID ///////////////////////////////////
+/////////////////////////////////////////  Get PICC's UID ///////////////////////////////////
 uint8_t getID(MFRC522 *mfrc522, byte readCard[])
 {
   // Getting ready for Reading PICCs
@@ -39,7 +39,7 @@ uint8_t getID(MFRC522 *mfrc522, byte readCard[])
   // Until we support 7 byte PICCs
   Serial.println(F("Scanned PICC's UID:"));
   for (uint8_t i = 0; i < 4; i++)
-  { //
+  {
     readCard[i] = mfrc522->uid.uidByte[i];
     Serial.print(readCard[i], HEX);
   }
@@ -75,7 +75,7 @@ void ShowReaderDetails(MFRC522 *mfrc522)
   }
 }
 
-///////////////////////////////////////// Cycle Leds (Program Mode) ///////////////////////////////////
+/////////////////////////////////////////  Cycle Leds (Program Mode) ///////////////////////////////////
 void cycleLeds()
 {
   digitalWrite(redLed, LED_OFF);  // Make sure red LED is off
@@ -92,7 +92,7 @@ void cycleLeds()
   delay(200);
 }
 
-//////////////////////////////////////// Normal Mode Led  ///////////////////////////////////
+/////////////////////////////////////////  Normal Mode Led  ///////////////////////////////////
 void normalModeOn()
 {
   digitalWrite(blueLed, LED_ON);   // Blue LED ON and ready to read card
@@ -101,7 +101,7 @@ void normalModeOn()
   digitalWrite(relay, HIGH);       // Make sure Door is Locked
 }
 
-//////////////////////////////////////// Read an ID from EEPROM //////////////////////////////
+/////////////////////////////////////////  Read an ID from EEPROM //////////////////////////////
 void readID(uint8_t number, byte storedCard[])
 {
   uint8_t start = (number * 4) + 2; // Figure out starting position
@@ -111,18 +111,18 @@ void readID(uint8_t number, byte storedCard[])
   }
 }
 
-///////////////////////////////////////// Add ID to EEPROM   ///////////////////////////////////
-void writeID(byte a[], byte storedCard[])
+/////////////////////////////////////////  Add ID to EEPROM   ///////////////////////////////////
+void writeID(byte storedCard[])
 {
-  if (!findID(a, storedCard))
-  {                                // Before we write to the EEPROM, check to see if we have seen this card before!
-    uint8_t num = EEPROM.read(0);  // Get the numer of used spaces, position 0 stores the number of ID cards
-    uint8_t start = (num * 4) + 6; // Figure out where the next slot starts
-    num++;                         // Increment the counter by one
-    EEPROM.write(0, num);          // Write the new count to the counter
+  if (!findID(storedCard))
+  {                                  // Before we write to the EEPROM, check to see if we have seen this card before!
+    uint8_t num = EEPROM.read(0);    // Get the numer of used spaces, position 0 stores the number of ID cards
+    uint8_t start = (num * 4) + 6;   // Figure out where the next slot starts
+    num++;                           // Increment the counter by one
+    EEPROM.write(0, num);            // Write the new count to the counter
     for (uint8_t j = 0; j < 4; j++)
-    {                                // Loop 4 times
-      EEPROM.write(start + j, a[j]); // Write the array values to EEPROM in the right position
+    {                                         // Loop 4 times
+      EEPROM.write(start + j, storedCard[j]); // Write the array values to EEPROM in the right position
     }
     successWrite();
     Serial.println(F("Successfully added ID record to EEPROM"));
@@ -134,10 +134,10 @@ void writeID(byte a[], byte storedCard[])
   }
 }
 
-///////////////////////////////////////// Remove ID from EEPROM   ///////////////////////////////////
-void deleteID(byte a[], byte storedCard[])
+/////////////////////////////////////////  Remove ID from EEPROM   ///////////////////////////////////
+void deleteID(byte deleteCard[])
 {
-  if (!findID(a, storedCard))
+  if (!findID(deleteCard))
   {                // Before we delete from the EEPROM, check to see if we have this card!
     failedWrite(); // If not
     Serial.println(F("Failed! There is something wrong with ID or bad EEPROM"));
@@ -150,7 +150,7 @@ void deleteID(byte a[], byte storedCard[])
     uint8_t looping;              // The number of times the loop repeats
     uint8_t j;
     // uint8_t count = EEPROM.read(0); // Read the first Byte of EEPROM that stores number of cards
-    slot = findIDSLOT(a, storedCard);           // Figure out the slot number of the card to delete
+    slot = findIDSLOT(deleteCard); // Figure out the slot number of the card to delete
     start = (slot * 4) + 2;
     looping = ((num - slot) * 4);
     num--;                // Decrement the counter by one
@@ -168,7 +168,7 @@ void deleteID(byte a[], byte storedCard[])
   }
 }
 
-///////////////////////////////////////// Check Bytes   ///////////////////////////////////
+/////////////////////////////////////////  Check Bytes   ///////////////////////////////////
 bool checkTwo(byte a[], byte b[])
 {
   for (uint8_t k = 0; k < 4; k++)
@@ -181,41 +181,39 @@ bool checkTwo(byte a[], byte b[])
   return true;
 }
 
-///////////////////////////////////////// Find Slot   ///////////////////////////////////
-uint8_t findIDSLOT(byte find[], byte storedCard[])
+/////////////////////////////////////////  Find Slot   ///////////////////////////////////
+uint8_t findIDSLOT(byte find[])
 {
+  byte storedCard[4];
   uint8_t count = EEPROM.read(0); // Read the first Byte of EEPROM that
   for (uint8_t i = 1; i <= count; i++)
-  {            // Loop once for each EEPROM entry
+  {                        // Loop once for each EEPROM entry
     readID(i, storedCard); // Read an ID from EEPROM, it is stored in storedCard[4]
     if (checkTwo(find, storedCard))
-    { // Check to see if the storedCard read from EEPROM
-      // is the same as the find[] ID card passed
+    { // Check to see if the storedCard read from EEPROM is the same as the find[] ID card passed
       return i; // The slot number of the card
     }
   }
   return 0;
 }
 
-///////////////////////////////////////// Find ID From EEPROM   ///////////////////////////////////
-bool findID(byte find[], byte storedCard[])
+/////////////////////////////////////////  Find ID From EEPROM   ///////////////////////////////////
+bool findID(byte find[])
 {
+  byte storedCard[4];
   uint8_t count = EEPROM.read(0); // Read the first Byte of EEPROM that
   for (uint8_t i = 1; i < count; i++)
-  {            // Loop once for each EEPROM entry
+  {                        // Loop once for each EEPROM entry
     readID(i, storedCard); // Read an ID from EEPROM, it is stored in storedCard[4]
     if (checkTwo(find, storedCard))
     { // Check to see if the storedCard read from EEPROM
       return true;
     }
-    else
-    { // If not, return false
-    }
   }
   return false;
 }
 
-///////////////////////////////////////// Write Success to EEPROM   ///////////////////////////////////
+/////////////////////////////////////////  Write Success to EEPROM   ///////////////////////////////////
 // Flashes the green LED 3 times to indicate a successful write to EEPROM
 void successWrite()
 {
@@ -235,7 +233,7 @@ void successWrite()
   delay(200);
 }
 
-///////////////////////////////////////// Write Failed to EEPROM   ///////////////////////////////////
+/////////////////////////////////////////  Write Failed to EEPROM   ///////////////////////////////////
 // Flashes the red LED 3 times to indicate a failed write to EEPROM
 void failedWrite()
 {
@@ -255,7 +253,7 @@ void failedWrite()
   delay(200);
 }
 
-///////////////////////////////////////// Success Remove UID From EEPROM  ///////////////////////////////////
+/////////////////////////////////////////  Success Remove UID From EEPROM  ///////////////////////////////////
 // Flashes the blue LED 3 times to indicate a success delete to EEPROM
 void successDelete()
 {

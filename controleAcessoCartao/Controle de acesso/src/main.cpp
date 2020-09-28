@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+// Configurations of Constants for loop and card library
 #include "config.h"
 #include "../../lib/card/card.h"
 
@@ -11,8 +12,8 @@
 
    This example showing a complete Door Access Control System
 
-  Simple Work Flow (not limited to) :
-                                     +---------+
+  Simple Work Flow (not limited to):
+                                    +--------------+
   +----------------------------------->READ TAGS+^------------------------------------------+
   |                              +--------------------+                                     |
   |                              |                    |                                     |
@@ -75,7 +76,7 @@
 /*
   For visualizing whats going on hardware we need some leds and to control door lock a relay and a wipe button
   (or some other hardware) Used common anode led,digitalWriting HIGH turns OFF led Mind that if you are going
-  to use common cathode led or just seperate leds, simply comment out #define COMMON_ANODE,
+  to use common cathode led or just separate leds, simply comment out #define COMMON_ANODE,
 */
 
 bool programMode = false; // initialize programming mode to false
@@ -130,7 +131,7 @@ void setup()
       for (uint16_t x = 0; x < EEPROM.length(); x = x + 1)
       { //Loop end of EEPROM address
         if (EEPROM.read(x) == 0)
-        { //If EEPROM address 0
+        { // If EEPROM address 0
           // do nothing, already clear, go to the next address in order to save time and reduce writes to EEPROM
         }
         else
@@ -214,8 +215,7 @@ void loop()
         EEPROM.write(1, 0); // Reset Magic Number.
         Serial.println(F("Master Card Erased from device"));
         Serial.println(F("Please reset to re-program Master Card"));
-        while (1)
-          ;
+        while (1);
       }
       Serial.println(F("Master Card Erase Cancelled"));
     }
@@ -238,51 +238,42 @@ void loop()
       programMode = false;
       return;
     }
+    else if (findID(readCard))
+    { // If scanned card is known delete it
+      Serial.println(F("I know this PICC, removing..."));
+      deleteID(readCard);
+      Serial.println("-----------------------------");
+      Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
+    }
     else
-    {
-      if (findID(readCard, storedCard))
-      { // If scanned card is known delete it
-        Serial.println(F("I know this PICC, removing..."));
-        deleteID(readCard);
-        Serial.println("-----------------------------");
-        Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
-      }
-      else
-      { // If scanned card is not known add it
-        Serial.println(F("I do not know this PICC, adding..."));
-        writeID(readCard);
-        Serial.println(F("-----------------------------"));
-        Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
-      }
+    { // If scanned card is not known add it
+      Serial.println(F("I do not know this PICC, adding..."));
+      writeID(readCard);
+      Serial.println(F("-----------------------------"));
+      Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
     }
   }
+  else if (isMaster(readCard, masterCard))
+  { // If scanned card's ID matches Master Card's ID - enter program mode
+    programMode = true;
+    Serial.println(F("Hello Master - Entered Program Mode"));
+    uint8_t count = EEPROM.read(0); // Read the first Byte of EEPROM that
+    Serial.print(F("I have "));     // stores the number of ID's in EEPROM
+    Serial.print(count);
+    Serial.print(F(" record(s) on EEPROM"));
+    Serial.println("");
+    Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
+    Serial.println(F("Scan Master Card again to Exit Program Mode"));
+    Serial.println(F("-----------------------------"));
+  }
+  else if (findID(readCard))
+  { // If not, see if the card is in the EEPROM
+    Serial.println(F("Welcome, You shall pass"));
+    granted(300); // Open the door lock for 300 ms
+  }
   else
-  {
-    if (isMaster(readCard, masterCard))
-    { // If scanned card's ID matches Master Card's ID - enter program mode
-      programMode = true;
-      Serial.println(F("Hello Master - Entered Program Mode"));
-      uint8_t count = EEPROM.read(0); // Read the first Byte of EEPROM that
-      Serial.print(F("I have "));     // stores the number of ID's in EEPROM
-      Serial.print(count);
-      Serial.print(F(" record(s) on EEPROM"));
-      Serial.println("");
-      Serial.println(F("Scan a PICC to ADD or REMOVE to EEPROM"));
-      Serial.println(F("Scan Master Card again to Exit Program Mode"));
-      Serial.println(F("-----------------------------"));
-    }
-    else
-    {
-      if (findID(readCard, storedCard))
-      { // If not, see if the card is in the EEPROM
-        Serial.println(F("Welcome, You shall pass"));
-        granted(300); // Open the door lock for 300 ms
-      }
-      else
-      { // If not, show that the ID was not valid
-        Serial.println(F("You shall not pass"));
-        denied();
-      }
-    }
+  { // If not, show that the ID was not valid
+    Serial.println(F("You shall not pass"));
+    denied();
   }
 }
